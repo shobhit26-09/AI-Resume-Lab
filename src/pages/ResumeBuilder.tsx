@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,70 @@ interface ResumeTemplate {
 }
 
 const templates: ResumeTemplate[] = [
+  {
+    id: "sde",
+    name: "Software Developer Template",
+    personalInfo: {
+      fullName: "Alex Developer",
+      email: "alex.dev@example.com",
+      phone: "+1 (555) 123-4567",
+      location: "San Francisco, CA",
+    },
+    sections: [
+      {
+        id: "experience",
+        title: "Professional Experience",
+        content: "Senior Software Engineer | Tech Solutions Inc.\n2021 - Present\n• Architected and implemented microservices using Node.js and TypeScript\n• Led team of 4 developers in delivering critical features\n• Reduced API response time by 40% through optimization\n\nSoftware Engineer | StartupXYZ\n2019 - 2021\n• Developed full-stack applications using React and Node.js\n• Implemented CI/CD pipelines reducing deployment time by 60%",
+      },
+      {
+        id: "education",
+        title: "Education",
+        content: "Master of Science in Computer Science\nStanford University | 2019\nCGPA: 3.8/4.0\n\nBachelor of Engineering in Computer Science\nMIT | 2017\nCGPA: 3.9/4.0",
+      },
+      {
+        id: "skills",
+        title: "Technical Skills",
+        content: "Languages: JavaScript, TypeScript, Python, Java\nFrameworks: React, Node.js, Express, Next.js\nTools: Git, Docker, Kubernetes, AWS\nDatabases: MongoDB, PostgreSQL\nOther: RESTful APIs, GraphQL, Microservices",
+      },
+      {
+        id: "projects",
+        title: "Projects",
+        content: "E-commerce Platform | React, Node.js, MongoDB\n• Built a full-stack e-commerce platform with 10k+ monthly users\n• Implemented real-time inventory management\n\nAI Chat Application | Python, TensorFlow\n• Developed an AI-powered chatbot using natural language processing\n• Achieved 85% accuracy in response generation",
+      }
+    ],
+  },
+  {
+    id: "designer",
+    name: "UI/UX Designer Template",
+    personalInfo: {
+      fullName: "Sarah Designer",
+      email: "sarah.design@example.com",
+      phone: "+1 (555) 987-6543",
+      location: "New York, NY",
+    },
+    sections: [
+      {
+        id: "experience",
+        title: "Design Experience",
+        content: "Senior UI/UX Designer | Design Studio\n2020 - Present\n• Led the redesign of major e-commerce platform increasing conversion by 35%\n• Mentored junior designers and conducted design workshops\n• Created comprehensive design systems for enterprise clients\n\nProduct Designer | Tech Startup\n2018 - 2020\n• Designed mobile-first applications from concept to launch\n• Conducted user research and usability testing",
+      },
+      {
+        id: "education",
+        title: "Education",
+        content: "Bachelor of Fine Arts in Digital Design\nParsons School of Design | 2018\n\nUX Design Certification\nGoogle | 2019",
+      },
+      {
+        id: "skills",
+        title: "Design Skills",
+        content: "Design Tools: Figma, Adobe XD, Sketch, Photoshop, Illustrator\nPrototyping: InVision, Principle, ProtoPie\nOther: Design Systems, Wireframing, User Research\nSoft Skills: Communication, Project Management, Team Leadership",
+      },
+      {
+        id: "portfolio",
+        title: "Portfolio Projects",
+        content: "Mobile Banking App Redesign\n• Increased user engagement by 45%\n• Reduced task completion time by 30%\n\nE-learning Platform Design\n• Created intuitive interface for 50k+ students\n• Implemented accessibility guidelines",
+      }
+    ],
+  },
   {
     id: "professional",
     name: "Professional Template",
@@ -137,7 +200,7 @@ const ResumeBuilder = () => {
     setSections((prev) => prev.filter((section) => section.id !== id));
   };
 
-  const downloadResume = () => {
+  const downloadResume = (format: 'txt' | 'pdf' | 'docx') => {
     const resumeContent = `
 ${personalInfo.fullName}
 ${personalInfo.email} | ${personalInfo.phone}
@@ -152,7 +215,7 @@ ${section.content}
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'resume.txt';
+    a.download = `resume.${format}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -245,15 +308,25 @@ ${section.content}
             </Card>
           ))}
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button onClick={addNewSection} className="flex-1">
               <Plus className="mr-2 h-4 w-4" />
               Add New Section
             </Button>
-            <Button onClick={downloadResume} variant="secondary" className="flex-1">
-              <Download className="mr-2 h-4 w-4" />
-              Download Resume
-            </Button>
+            <div className="flex gap-2 flex-1">
+              <Button onClick={() => downloadResume('txt')} variant="secondary" className="flex-1">
+                <Download className="mr-2 h-4 w-4" />
+                Download TXT
+              </Button>
+              <Button onClick={() => downloadResume('pdf')} variant="secondary" className="flex-1">
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+              <Button onClick={() => downloadResume('docx')} variant="secondary" className="flex-1">
+                <Download className="mr-2 h-4 w-4" />
+                Download DOCX
+              </Button>
+            </div>
           </div>
         </div>
       </main>
