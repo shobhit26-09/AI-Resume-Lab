@@ -1,6 +1,6 @@
 
-import React from "react";
-import ReactDOM from "react-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { ClerkProvider } from "@clerk/clerk-react";
 import App from "./App";
 import "./index.css";
@@ -11,10 +11,15 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+const element = document.getElementById("root");
+if (!element) throw new Error("Root element not found");
+
+const root = createRoot(element);
+
+root.render(
+  <StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <App />
     </ClerkProvider>
-  </React.StrictMode>
+  </StrictMode>
 );
