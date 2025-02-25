@@ -1,32 +1,49 @@
 
-import { Button } from "./ui/button";
-import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 export const Hero = () => {
+  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-background to-background/50 z-0" />
-      <div className="relative z-10 container mx-auto px-4 py-32 text-center">
-        <div className="animate-fadeIn">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance mb-6">
-            Craft Your Perfect Resume with
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> AI
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Create professionally crafted resumes that stand out. Powered by AI to highlight your strengths and match job requirements.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="group">
-              Start Building
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button size="lg" variant="outline">
-              View Templates
-            </Button>
+    <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-20">
+      <div className="container px-4 md:px-6">
+        <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+          <div className="flex flex-col justify-center space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                Create Your Professional Resume
+              </h1>
+              <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+                Build and customize your resume with our AI-powered resume builder. Stand out from the crowd and land your dream job.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 min-[400px]:flex-row">
+              <Button
+                size="lg"
+                onClick={() => {
+                  if (isSignedIn) {
+                    navigate("/resume-builder");
+                  }
+                }}
+              >
+                Start Building
+              </Button>
+            </div>
+          </div>
+          <div className="mx-auto flex w-full items-center justify-center">
+            <img
+              alt="Resume Builder Hero"
+              className="aspect-video overflow-hidden rounded-xl object-cover object-center"
+              src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
+              width={600}
+              height={400}
+            />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

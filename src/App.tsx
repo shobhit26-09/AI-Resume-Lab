@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ClerkLoaded, ClerkLoading, SignedIn, SignedOut } from "@clerk/clerk-react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import ResumeBuilder from "./pages/ResumeBuilder";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,14 @@ const App = () => (
         <ClerkLoaded>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route
+              path="/resume-builder"
+              element={
+                <SignedIn>
+                  <ResumeBuilder />
+                </SignedIn>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ClerkLoaded>
