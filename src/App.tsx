@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 import ResumeBuilder from "@/pages/ResumeBuilder";
+import ResumeAnalysis from "@/pages/ResumeAnalysis";
 
 const router = createBrowserRouter([
   {
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
   {
     path: "/resume-builder",
     element: <ResumeBuilder />,
+  },
+  {
+    path: "/resume-analysis",
+    element: <ResumeAnalysis />,
   },
   {
     path: "*",

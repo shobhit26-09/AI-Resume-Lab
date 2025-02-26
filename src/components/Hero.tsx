@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 
 export const Hero = () => {
   const { isSignedIn } = useUser();
@@ -30,6 +31,15 @@ export const Hero = () => {
                 }}
               >
                 Start Building
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => navigate("/resume-analysis")}
+                className="gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Analyze Resume with AI
               </Button>
             </div>
           </div>
