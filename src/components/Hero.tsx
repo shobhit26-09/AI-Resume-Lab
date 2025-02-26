@@ -1,15 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { useUser, SignInButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
-
 export const Hero = () => {
-  const { isSignedIn } = useUser();
+  const {
+    isSignedIn
+  } = useUser();
   const navigate = useNavigate();
-
-  return (
-    <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-20">
+  return <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-20">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <div className="flex flex-col justify-center space-y-4">
@@ -22,42 +20,23 @@ export const Hero = () => {
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              {isSignedIn ? (
-                <Button
-                  size="lg"
-                  onClick={() => navigate("/resume-builder")}
-                >
+              {isSignedIn ? <Button size="lg" onClick={() => navigate("/resume-builder")}>
                   Start Building
-                </Button>
-              ) : (
-                <SignInButton mode="modal">
+                </Button> : <SignInButton mode="modal" className="text-slate-50 bg-blue-800 hover:bg-blue-700 text-base text-right">
                   <Button size="lg">
                     Sign in to Start Building
                   </Button>
-                </SignInButton>
-              )}
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => navigate("/resume-analysis")}
-                className="gap-2"
-              >
+                </SignInButton>}
+              <Button size="lg" variant="secondary" onClick={() => navigate("/resume-analysis")} className="gap-2">
                 <Sparkles className="h-4 w-4" />
                 Analyze Resume with AI
               </Button>
             </div>
           </div>
           <div className="mx-auto flex w-full items-center justify-center">
-            <img
-              alt="Resume Builder Hero"
-              className="aspect-video overflow-hidden rounded-xl object-cover object-center"
-              src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d"
-              width={600}
-              height={400}
-            />
+            <img alt="Resume Builder Hero" className="aspect-video overflow-hidden rounded-xl object-cover object-center" src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" width={600} height={400} />
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
