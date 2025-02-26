@@ -1,56 +1,32 @@
 
-import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
-import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
-export const NavBar = () => {
-  const { isSignedIn } = useUser();
-
+export function NavBar() {
   return (
-    <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center space-x-8">
-          <a href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl">AI Resume Lab</span>
-          </a>
-          <div className="hidden md:flex space-x-6">
-            <a href="#features" className="text-sm font-medium transition-colors hover:text-primary">
-              Features
-            </a>
-            <a href="#templates" className="text-sm font-medium transition-colors hover:text-primary">
-              Templates
-            </a>
-            <a href="#pricing" className="text-sm font-medium transition-colors hover:text-primary">
-              Pricing
-            </a>
-          </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          {!isSignedIn ? (
-            <>
-              <SignInButton mode="modal">
-                <Button variant="ghost" className="text-sm">
-                  Sign In
-                </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button className="text-sm">
-                  Get Started
-                </Button>
-              </SignUpButton>
-            </>
-          ) : (
-            <UserButton 
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: "w-10 h-10"
-                }
-              }}
-            />
-          )}
+    <header className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link to="/" className="mr-6 flex items-center space-x-2">
+            <span className="hidden font-bold sm:inline-block">
+              Resume Builder
+            </span>
+          </Link>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <Link
+              to="/"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Home
+            </Link>
+            <Link
+              to="/resume-builder"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Resume Builder
+            </Link>
+          </nav>
         </div>
       </div>
-    </nav>
+    </header>
   );
-};
+}
