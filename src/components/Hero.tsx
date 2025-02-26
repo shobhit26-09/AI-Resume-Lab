@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignInButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 
@@ -22,16 +22,20 @@ export const Hero = () => {
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button
-                size="lg"
-                onClick={() => {
-                  if (isSignedIn) {
-                    navigate("/resume-builder");
-                  }
-                }}
-              >
-                Start Building
-              </Button>
+              {isSignedIn ? (
+                <Button
+                  size="lg"
+                  onClick={() => navigate("/resume-builder")}
+                >
+                  Start Building
+                </Button>
+              ) : (
+                <SignInButton mode="modal">
+                  <Button size="lg">
+                    Sign in to Start Building
+                  </Button>
+                </SignInButton>
+              )}
               <Button
                 size="lg"
                 variant="secondary"
