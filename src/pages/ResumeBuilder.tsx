@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { NavBar } from "@/components/NavBar";
 import { Plus, Trash, Download } from "lucide-react";
+import jsPDF from 'jspdf';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 interface ResumeSection {
   id: string;
@@ -200,8 +202,9 @@ const ResumeBuilder = () => {
     setSections((prev) => prev.filter((section) => section.id !== id));
   };
 
-  const downloadResume = (format: 'txt' | 'pdf' | 'docx') => {
-    const resumeContent = `
+  const downloadResume = async (format: 'txt' | 'pdf' | 'docx') => {
+    if (format === 'txt') {
+      const resumeContent = `
 ${personalInfo.fullName}
 ${personalInfo.email} | ${personalInfo.phone}
 ${personalInfo.location}
@@ -211,15 +214,118 @@ ${section.content}
 
 `).join('\n')}`;
 
-    const blob = new Blob([resumeContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `resume.${format}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      const blob = new Blob([resumeContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'resume.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (format === 'pdf') {
+      const pdf = new jsPDF();
+      const lineHeight = 7;
+      let yPos = 20;
+
+      // Add personal info
+      pdf.setFontSize(16);
+      pdf.text(personalInfo.fullName, 20, yPos);
+      yPos += lineHeight;
+
+      pdf.setFontSize(10);
+      pdf.text(`${personalInfo.email} | ${personalInfo.phone}`, 20, yPos);
+      yPos += lineHeight;
+      pdf.text(personalInfo.location, 20, yPos);
+      yPos += lineHeight * 2;
+
+      // Add sections
+      sections.forEach(section => {
+        pdf.setFontSize(14);
+        pdf.text(section.title, 20, yPos);
+        yPos += lineHeight;
+
+        pdf.setFontSize(10);
+        const lines = section.content.split('\n');
+        lines.forEach(line => {
+          if (yPos >= pdf.internal.pageSize.height - 20) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          pdf.text(line, 20, yPos);
+          yPos += lineHeight;
+        });
+        yPos += lineHeight;
+      });
+
+      pdf.save('resume.pdf');
+    } else if (format === 'docx') {
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: personalInfo.fullName,
+                  bold: true,
+                  size: 28,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${personalInfo.email} | ${personalInfo.phone}`,
+                  size: 24,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: personalInfo.location,
+                  size: 24,
+                }),
+              ],
+            }),
+            new Paragraph({}),
+            ...sections.flatMap(section => [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: section.title,
+                    bold: true,
+                    size: 26,
+                  }),
+                ],
+              }),
+              ...section.content.split('\n').map(line => 
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: line,
+                      size: 24,
+                    }),
+                  ],
+                })
+              ),
+              new Paragraph({}),
+            ]),
+          ],
+        }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'resume.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   return (
