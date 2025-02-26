@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { NavBar } from "@/components/NavBar";
-import { Plus, Trash, Download } from "lucide-react";
+import { Plus, Trash, Download, Upload, Sparkles } from "lucide-react";
 import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { useToast } from "@/hooks/use-toast";
 
 interface ResumeSection {
   id: string;
@@ -148,6 +149,7 @@ const templates: ResumeTemplate[] = [
 ];
 
 const ResumeBuilder = () => {
+  const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [personalInfo, setPersonalInfo] = useState({
     fullName: "",
@@ -161,6 +163,9 @@ const ResumeBuilder = () => {
     { id: "education", title: "Education", content: "" },
     { id: "skills", title: "Skills", content: "" },
   ]);
+
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<string | null>(null);
 
   const handleTemplateSelect = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId);
@@ -202,6 +207,65 @@ const ResumeBuilder = () => {
     setSections((prev) => prev.filter((section) => section.id !== id));
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      setAnalyzing(true);
+      toast({
+        title: "Analyzing Resume",
+        description: "Please wait while we analyze your resume...",
+      });
+
+      const text = await extractTextFromFile(file);
+      
+      const response = await fetch('/functions/analyze-resume', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ resumeText: text }),
+      });
+
+      if (!response.ok) throw new Error('Analysis failed');
+
+      const data = await response.json();
+      setAnalysis(data.choices[0].message.content);
+      
+      toast({
+        title: "Analysis Complete",
+        description: "Your resume has been analyzed successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Analysis Failed",
+        description: "There was an error analyzing your resume. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const extractTextFromFile = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          resolve(e.target?.result as string);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
+
   const downloadResume = async (format: 'txt' | 'pdf' | 'docx') => {
     if (format === 'txt') {
       const resumeContent = `
@@ -228,7 +292,6 @@ ${section.content}
       const lineHeight = 7;
       let yPos = 20;
 
-      // Add personal info
       pdf.setFontSize(16);
       pdf.text(personalInfo.fullName, 20, yPos);
       yPos += lineHeight;
@@ -239,7 +302,6 @@ ${section.content}
       pdf.text(personalInfo.location, 20, yPos);
       yPos += lineHeight * 2;
 
-      // Add sections
       sections.forEach(section => {
         pdf.setFontSize(14);
         pdf.text(section.title, 20, yPos);
@@ -414,24 +476,73 @@ ${section.content}
             </Card>
           ))}
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button onClick={addNewSection} className="flex-1">
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Section
-            </Button>
-            <div className="flex gap-2 flex-1">
-              <Button onClick={() => downloadResume('txt')} variant="secondary" className="flex-1">
-                <Download className="mr-2 h-4 w-4" />
-                Download TXT
-              </Button>
-              <Button onClick={() => downloadResume('pdf')} variant="secondary" className="flex-1">
-                <Download className="mr-2 h-4 w-4" />
-                Download PDF
-              </Button>
-              <Button onClick={() => downloadResume('docx')} variant="secondary" className="flex-1">
-                <Download className="mr-2 h-4 w-4" />
-                Download DOCX
-              </Button>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={addNewSection} className="flex-1">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New Section
+                </Button>
+                <div className="flex gap-2 flex-1">
+                  <Button onClick={() => downloadResume('txt')} variant="secondary" className="flex-1">
+                    <Download className="mr-2 h-4 w-4" />
+                    TXT
+                  </Button>
+                  <Button onClick={() => downloadResume('pdf')} variant="secondary" className="flex-1">
+                    <Download className="mr-2 h-4 w-4" />
+                    PDF
+                  </Button>
+                  <Button onClick={() => downloadResume('docx')} variant="secondary" className="flex-1">
+                    <Download className="mr-2 h-4 w-4" />
+                    DOCX
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5" />
+                    AI Resume Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6">
+                    <Input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="resume-upload"
+                    />
+                    <label
+                      htmlFor="resume-upload"
+                      className="flex flex-col items-center gap-2 cursor-pointer"
+                    >
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Upload your existing resume for AI analysis
+                      </span>
+                    </label>
+                  </div>
+
+                  {analyzing && (
+                    <div className="text-center text-muted-foreground">
+                      Analyzing your resume...
+                    </div>
+                  )}
+
+                  {analysis && (
+                    <div className="p-4 bg-muted rounded-lg">
+                      <pre className="whitespace-pre-wrap text-sm">
+                        {analysis}
+                      </pre>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
