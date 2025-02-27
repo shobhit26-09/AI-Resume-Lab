@@ -14,7 +14,15 @@ serve(async (req) => {
   }
 
   try {
-    const { resumeText } = await req.json();
+    const formData = await req.formData();
+    const file = formData.get('file') as File;
+    
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    // Read file content as text (you might need additional processing for PDFs/DOCs)
+    const text = await file.text();
 
     const prompt = `Analyze the following resume and provide:
 1. ATS (Applicant Tracking System) score out of 100
@@ -23,7 +31,7 @@ serve(async (req) => {
 4. Overall strengths and weaknesses
 
 Resume:
-${resumeText}`;
+${text}`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -47,14 +55,27 @@ ${resumeText}`;
       }),
     });
 
+    if (!response.ok) {
+      throw new Error('Failed to analyze resume');
+    }
+
     const data = await response.json();
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        analysis: data.choices[0].message.content 
+      }), 
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }), 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });

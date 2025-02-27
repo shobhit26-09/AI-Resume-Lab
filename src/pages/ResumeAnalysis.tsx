@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { NavBar } from "@/components/NavBar";
 import { Card } from "@/components/ui/card";
@@ -16,6 +15,15 @@ const ResumeAnalysis = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload a file smaller than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setAnalyzing(true);
       toast({
@@ -23,26 +31,27 @@ const ResumeAnalysis = () => {
         description: "Please wait while we analyze your resume...",
       });
 
-      const text = await extractTextFromFile(file);
-      
+      const formData = new FormData();
+      formData.append('file', file);
+
       const response = await fetch('/functions/analyze-resume', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ resumeText: text }),
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Analysis failed');
+      if (!response.ok) {
+        throw new Error('Analysis failed');
+      }
 
       const data = await response.json();
-      setAnalysis(data.choices[0].message.content);
+      setAnalysis(data.analysis);
       
       toast({
         title: "Analysis Complete",
         description: "Your resume has been analyzed successfully!",
       });
     } catch (error) {
+      console.error('Error analyzing resume:', error);
       toast({
         title: "Analysis Failed",
         description: "There was an error analyzing your resume. Please try again.",
@@ -51,21 +60,6 @@ const ResumeAnalysis = () => {
     } finally {
       setAnalyzing(false);
     }
-  };
-
-  const extractTextFromFile = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          resolve(e.target?.result as string);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
   };
 
   return (
