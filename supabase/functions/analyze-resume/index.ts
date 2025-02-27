@@ -21,18 +21,23 @@ serve(async (req) => {
       throw new Error('No file provided');
     }
 
-    // Read file content as text (you might need additional processing for PDFs/DOCs)
+    // Read file content as text
     const text = await file.text();
 
-    const prompt = `Analyze the following resume and provide:
-1. ATS (Applicant Tracking System) score out of 100
-2. Specific suggestions for improvement
-3. Keywords analysis
-4. Overall strengths and weaknesses
+    const prompt = `You are an expert ATS system and resume analyzer. Analyze this resume and provide:
+1. ATS Score (0-100): Rate how well this resume would perform in Applicant Tracking Systems
+2. Key Findings: List 3-5 main strengths or issues
+3. Improvement Suggestions: Provide 3-5 specific, actionable improvements
+4. Keywords Analysis: List important keywords found and suggest missing ones
+5. Format Assessment: Evaluate the resume's structure and formatting
 
-Resume:
-${text}`;
+Resume text:
+${text}
 
+Provide your analysis in a clear, structured format with sections clearly labeled.`;
+
+    console.log('Sending request to OpenAI...');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -56,7 +61,8 @@ ${text}`;
     });
 
     if (!response.ok) {
-      throw new Error('Failed to analyze resume');
+      console.error('OpenAI API error:', await response.text());
+      throw new Error('Failed to analyze resume with OpenAI');
     }
 
     const data = await response.json();
@@ -69,7 +75,7 @@ ${text}`;
       }
     );
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in analyze-resume function:', error);
     return new Response(
       JSON.stringify({ error: error.message }), 
       {
