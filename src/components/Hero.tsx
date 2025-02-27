@@ -9,7 +9,7 @@ export const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-20">
+    <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-20 bg-gradient-to-br from-teal-50 via-purple-50 to-rose-50">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <div className="flex flex-col justify-center space-y-4">
@@ -17,7 +17,7 @@ export const Hero = () => {
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                 Create Your Professional Resume
               </h1>
-              <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+              <p className="max-w-[600px] text-gray-600 md:text-xl">
                 Build and customize your resume with our AI-powered resume builder. Stand out from the crowd and land your dream job.
               </p>
             </div>
@@ -26,6 +26,7 @@ export const Hero = () => {
                 <Button
                   size="lg"
                   onClick={() => navigate("/resume-builder")}
+                  className="bg-emerald-500 hover:bg-emerald-600"
                 >
                   Start Building
                 </Button>
@@ -41,7 +42,7 @@ export const Hero = () => {
                 size="lg"
                 variant="secondary"
                 onClick={() => navigate("/resume-analysis")}
-                className="gap-2"
+                className="gap-2 bg-white hover:bg-gray-50"
               >
                 <Sparkles className="h-4 w-4" />
                 Analyze Resume with AI
