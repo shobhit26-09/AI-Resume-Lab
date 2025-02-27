@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useUser, SignInButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { Sparkles, LogIn } from "lucide-react";
 
 export const Hero = () => {
   const { isSignedIn } = useUser();
@@ -31,7 +31,8 @@ export const Hero = () => {
                 </Button>
               ) : (
                 <SignInButton mode="modal">
-                  <Button size="lg">
+                  <Button size="lg" className="gap-2">
+                    <LogIn className="h-4 w-4" />
                     Sign in to Start Building
                   </Button>
                 </SignInButton>
